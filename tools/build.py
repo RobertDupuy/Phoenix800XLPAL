@@ -1,6 +1,6 @@
 """Assemble the Atari XL program and package its MegaCart cartridge image."""
 from pathlib import Path
-import os, subprocess, struct, json, re, hashlib, shutil
+import argparse, os, subprocess, struct, json, re, hashlib, shutil
 from prepare_large import prepare as prepare_large
 from prepare_flight_art import prepare as prepare_flight_art
 from prepare_hud import prepare as prepare_hud
@@ -11,14 +11,35 @@ from prepare_art import prepare
 from prepare_formation import prepare as prepare_formation
 from prepare_victory import prepare as prepare_victory
 from prepare_xl import prepare as prepare_xl
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--video',choices=('ntsc','pal'),default='ntsc')
+args=parser.parse_args()
+video=args.video
+cart_name='Phoenix800XL-PAL' if video=='pal' else 'Phoenix800XL'
+# Atari800's documented refresh rates; POKEY's master clock follows the CPU.
+clock=1773447.0 if video=='pal' else 1789772.5
+scanlines=312 if video=='pal' else 262
+video_hz=clock/(114*scanlines)
+arcade_hz=12000000/(512*384)
+extra=round((arcade_hz/video_hz-1)*65536)
 R=Path(__file__).resolve().parents[1]
 B=R/'build'; B.mkdir(exist_ok=True)
+palette_reference=json.loads((R/'src/arcade-assets/xl-video-palettes.json').read_text())
+colors=list(range(256))
+if video=='pal':
+ for c in range(256):
+  target=palette_reference['ntsc'][c]
+  # The low color bit is ignored by GTIA. Preserve black/white/gray codes.
+  colors[c]=c if c<16 else min(range(16,256,2),key=lambda p:sum((target[j]-palette_reference['pal'][p][j])**2 for j in range(3)))
+(B/'video-config.inc').write_text(f'.set XL_PAL,{int(video=="pal")}\n.set arcade_frame_extra,{extra}\n.set ship_frame_extra,{14687 if video=="pal" else 1216}\n.set intro_frame_count,{250 if video=="pal" else 300}\n')
+(B/'video-config.inc').open('a').write(''.join(f'.set color_{c:02x},{v}\n' for c,v in enumerate(colors)))
+(B/'video.json').write_text(json.dumps(dict(video=video,clock_hz=clock,scanlines=scanlines,video_hz=video_hz,arcade_hz=arcade_hz,fraction_extra=extra,colors=colors,car_file=cart_name+'.car'),indent=2))
 MOS=Path(os.environ['LLVM_MOS'])/'bin' if os.environ.get('LLVM_MOS') else Path(shutil.which('mos-common-clang') or '/missing/mos-common-clang').parent
 if not (MOS/'mos-common-clang').is_file():raise SystemExit('Set LLVM_MOS to your LLVM-MOS SDK directory.')
 prepare()
 prepare_formation()
 prepare_hud()
-prepare_native()
+prepare_native(clock=clock)
 native=(B/'native-tiles.bin').read_bytes()
 (B/'native-masks.bin').write_bytes(bytes((~sum(3 << shift for shift in (0,2,4,6) if (v >> shift) & 3)) & 255 for v in native))
 prepare_large()
@@ -26,6 +47,11 @@ prepare_flight_art()
 prepare_campaign()
 prepare_xl()
 prepare_intro()
+# Startup fonts and sprite pixels stay unchanged; only GTIA palette bytes move.
+if video=='pal':
+ intro_maps=bytearray((B/'intro-maps.bin').read_bytes())
+ intro_maps[960:1016]=bytes(colors[v] for v in intro_maps[960:1016])
+ (B/'intro-maps.bin').write_bytes(intro_maps)
 prepare_victory()
 (B/'intro-size.inc').write_text(".set intro_fonts_end,"+str(0xa400+len((B/'intro-fonts-packed.bin').read_bytes()))+"\n")
 screen=bytearray(b' '*960)
@@ -114,10 +140,10 @@ for n,bank in enumerate(banks):
  xlbanks[n+2][:]=bank[0x4000:]
  xlbanks[n+2][0x3fd0:]=boot[0xfd0:]
 rom=b''.join(xlbanks)
-(B/'Phoenix800XL.rom').write_bytes(rom)
+(B/(cart_name+'.rom')).write_bytes(rom)
 car=b'CART'+struct.pack('>III',30,sum(rom)&0xffffffff,0)+rom
-(B/'Phoenix800XL.car').write_bytes(car)
-(R/'Phoenix800XL.car').write_bytes(car)
+(B/(cart_name+'.car')).write_bytes(car)
+(R/(cart_name+'.car')).write_bytes(car)
 nm=subprocess.check_output([str(MOS/'llvm-nm'),'build/game.elf'],cwd=R,text=True)
 symbols={m[3]:int(m[1],16) for line in nm.splitlines() if (m:=re.match(r'^([0-9A-Fa-f]+)\s+(\w)\s+(.+)$',line))}
 assert symbols['large_collision']<0xa400
@@ -131,4 +157,4 @@ for page in range(48):
 assert rom[0x3ffa:0x4000]==bytes([0xd0,0xbf,0,4,0xf9,0xbf])
 assert len(rom)==262144
 assert symbols['platform_end']<=0xd000
-print(json.dumps({'payload_bytes':len(rom),'car_type':30,'entry':hex(symbols['entry']),'sha256':hashlib.sha256(car).hexdigest()},indent=2))
+print(json.dumps({'payload_bytes':len(rom),'car_type':30,'video':video,'file':cart_name+'.car','entry':hex(symbols['entry']),'sha256':hashlib.sha256(car).hexdigest()},indent=2))

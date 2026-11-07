@@ -1,3 +1,4 @@
+.include "build/video-config.inc"
 # Phoenix800XL v1.0 — based on Phoenix5200 v0.31.
 # Seven large birds and five mothership escorts; standard 64 KiB XL/XE.
 # All code executed by the console is NMOS 6502 assembly.
@@ -170,10 +171,10 @@ simulation_video_tick:
  jsr counted_tick
  clc
  lda arcade_fraction
- adc #<1217
+ adc #<arcade_frame_extra
  sta arcade_fraction
  lda arcade_fraction+1
- adc #>1217
+ adc #>arcade_frame_extra
  sta arcade_fraction+1
  bcc 3f
  jsr counted_tick
@@ -244,17 +245,17 @@ clear_gtia:
  sta 0xd405
  lda #0x01                      // M0/M2/M3 use their white player colors
  sta 0xd01b
- lda #0x0e
+ lda #color_0e
  sta 0xd012
  sta 0xd017
  sta 0xd019
- lda #0x2c
+ lda #color_2c
  sta 0xd013
- lda #0x2c
+ lda #color_2c
  sta 0xd014
- lda #0x2c
+ lda #color_2c
  sta 0xd015
- lda #0
+ lda #color_00
  sta 0xd018
  sta 0xd01a
  ldx #15
@@ -388,11 +389,11 @@ frame_count_done:
  clc
  adc #8
  sta 0xd409
- lda #0xa8
+ lda #color_a8
  sta 0xd016
- lda #0x46
+ lda #color_46
  sta 0xd017
- lda #0x5a
+ lda #color_5a
  sta 0xd018
  lda video_phase
  eor #1
@@ -432,7 +433,7 @@ publish_frame:
 1: sta boss_entrance_shown
  lda entrance_timer
  sta entrance_shown
- lda #0x46
+ lda #color_46
  sta 0xd019
  ldx back_buffer
  lda large_buffer,x
@@ -732,10 +733,10 @@ render_players:
  bcc normal_ship_players
  jmp render_enemies
 normal_ship_players:
- lda #44
+ lda #color_2c
  sta 0xd014
  jsr animate_ship
- lda #0x46
+ lda #color_46
  sta 0xd013
  lda entrance_timer
  ora entrance_handoff
@@ -789,7 +790,7 @@ render_enemies:
 .endm
 .global render_extra_bombs
 render_extra_bombs:
- lda #0x0e
+ lda #color_0e
  sta 0xd015
  extra_bomb 4,0x1700,0xd003
  rts
@@ -895,13 +896,13 @@ startup_init:
  sta 0x206
  lda #>startup_dli
  sta 0x207
- lda #0xa8
+ lda #color_a8
  sta 0xd016
- lda #0x5a
+ lda #color_5a
  sta 0xd017
- lda #0x2c
+ lda #color_2c
  sta 0xd018
- lda #0x0e
+ lda #color_0e
  sta 0xd019
  jsr startup_select
  lda #0x22                      // wide playfield, no player/missile DMA
@@ -918,9 +919,9 @@ startup_select:
  sta 0xd402
  lda intro_dl+1,x
  sta 0xd403
- lda #<300
+ lda #<intro_frame_count
  sta intro_ticks
- lda #>300
+ lda #>intro_frame_count
  sta intro_ticks+1
  jsr startup_fonts
  rts
@@ -1032,13 +1033,13 @@ intro_start_counted:
  sta render_ready
  lda #0x20
  sta gameplay_font
- lda #0x0e
+ lda #color_0e
  sta 0xd012
  sta 0xd016
  sta 0xd017
  sta 0xd018
  sta 0xd019
- lda #0x46
+ lda #color_46
  sta 0xd013
  lda front_buffer
  asl

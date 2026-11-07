@@ -10,9 +10,14 @@ R=Path(__file__).resolve().parents[1];B=R/'build';A=R/'src/arcade-assets'
 def tables():
  s=(A/'phoenix_tables.c').read_text()
  return {m[1]:bytes(int(x,16) for x in re.findall(r'0x([0-9a-fA-F]{2})',m[2])) for m in re.finditer(r'const uint8_t phoenix_(\w+)\[[^]]*\]\s*=\s*\{(.*?)\};',s,re.S)}
-def prepare():
+def prepare(clock=1789772.5):
  t=tables();inc=[]
  data=json.loads((A/'audio-circuit.json').read_text())
+ ratio=clock/1789772.5
+ # Zero is a sequencer 'hold' token, never a frequency to retune.
+ if clock!=1789772.5:
+  data['music_ntsc']=[max(1,min(255,round((v+1)*ratio)-1)) if v else 0 for v in data['music_ntsc']]
+ (B/'audio-circuit.json').write_text(json.dumps(data,indent=2))
  look=bytearray()
  # One delta table replaces six copies of the same RC response.
  for delta in range(256):look.append((delta*14+128)>>8)
@@ -20,7 +25,7 @@ def prepare():
  for which in ['a','b']:
   for lo,hi in zip(data['vco_'+which+'_ntsc_lo'],data['vco_'+which+'_ntsc_hi']):
    for nib in range(16):
-    period=(lo+256*hi)*(16-nib)/256
+    period=(lo+256*hi)*(16-nib)/256*ratio
     # Channel 3's independent 1.79 MHz clock removes the coarse 64 kHz
     # pitch staircase from high bird whistles, without changing channel 4.
     fast=round(period*28)-4
@@ -37,13 +42,13 @@ def prepare():
    noise.append(max(0,min(63,level+step)))
  # The upper half covers the sum of C24 and C25 during overlapping effects.
  # The unused six-bit C25 tables are removed; C25 uses eight-bit tables below.
- for level in range(128):noise.append(round((1789772.5/28)/(588+6325*min(level,126)/126))-1)
+ for level in range(128):noise.append(round((clock/28)/(588+6325*min(level,126)/126))-1)
  for level in range(64):noise.append(0 if level<3 else 0x80+round(8*level/63))
  # The selected bird-siren filter has R=10k||100k and C=0.047 uF.
  # Match its fundamental attenuation; POKEY cannot reproduce its exact shape.
  cutoff=1/(2*math.pi*(10000*100000/110000)*.047e-6)
  for divisor in range(256):
-  hz=1789772.5/(56*(divisor+1))
+  hz=clock/(56*(divisor+1))
   noise.append(0xa0+max(1,round(8*.909/math.sqrt(1+(hz/cutoff)**2))))
  (B/'audio-noise.bin').write_bytes(noise)
  # Eight-bit explosion capacitors avoid the premature tail cutoff caused by

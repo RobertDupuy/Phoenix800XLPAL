@@ -4,7 +4,7 @@ from xl_player import Player
 import argparse, hashlib, json
 
 p=argparse.ArgumentParser();p.add_argument('--frames',type=int,default=48000)
-p.add_argument('--step',type=int,default=4);args=p.parse_args();O=ROOT/'evidence/xl/playthrough'
+p.add_argument('--step',type=int,default=4);args=p.parse_args();O=ROOT/('evidence/xl/pal/playthrough' if json.loads((ROOT/'build/symbols.json').read_text()).get('XL_PAL') else 'evidence/xl/playthrough')
 with XL(O) as e:
     a=e.a;a.frame(500);player=Player(1,args.step)
     m=a.memdump(0,16384);events=[];inputs=[];last=None;max_wave=0
@@ -21,7 +21,7 @@ with XL(O) as e:
             events.append(event);last=key;print(event,flush=True)
             a.screenshot(path=str(O/f'event-{f:06}.png'))
         if m[0x83]>=6:break
-    report=dict(method=__doc__,car_sha256=hashlib.sha256((ROOT/'Phoenix800XL.car').read_bytes()).hexdigest(),
+    report=dict(method=__doc__,car_sha256=hashlib.sha256(e.car_path.read_bytes()).hexdigest(),
         frames=f+args.step,max_wave=max_wave,completed_first_cycle=max_wave>=6,events=events,
         late_vbi=int.from_bytes(m[0x308:0x30a],'little'),layout_faults=m[0x32d])
     (O/'report.json').write_text(json.dumps(report,indent=2))

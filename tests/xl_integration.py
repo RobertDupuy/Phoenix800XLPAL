@@ -7,7 +7,7 @@ from xl_emulator import XL, ROOT
 import hashlib, json
 
 S = json.loads((ROOT/'build/symbols.json').read_text())
-O = ROOT/'evidence/xl/integration'
+O = ROOT/('evidence/xl/pal/integration' if S.get('XL_PAL') else 'evidence/xl/integration')
 
 def set_values(a, values):
     for name, value in values.items():
@@ -66,11 +66,12 @@ if __name__ == '__main__':
             gaps=[b-a for a,b in zip(ticks,ticks[1:])]
             row=dict(wave=wave,enemies=after[S['aliens_left']],
                 video_frames=delta('frames',4),
-                render_fps=round(delta('fresh_commits',4)/delta('frames',4)*59.922743,3),
-                simulation_hz=round(delta('sim_steps',4)/delta('frames',4)*59.922743,3),
+                render_fps=round(delta('fresh_commits',4)/delta('frames',4)*e.video_hz,3),
+                simulation_hz=round(delta('sim_steps',4)/delta('frames',4)*e.video_hz,3),
+                audio_tick_hz=round(delta('audio_ticks',2)/delta('frames',4)*e.video_hz,3),
                 late_vbi=delta('late_frames',2),audio_underruns=delta('audio_underruns',2),
                 layout_faults=after[S['layout_faults']],
-                missing_audio_frames=sum(max(0,round(g/(262*114))-1) for g in gaps),
+                missing_audio_frames=sum(max(0,round(g/(e.scanlines*114))-1) for g in gaps),
                 max_audio_gap_clocks=max(gaps))
             assert row['late_vbi']==row['audio_underruns']==row['layout_faults']==row['missing_audio_frames']==0,row
             assert row['enemies']==([16,16,7,7,5][wave-1]),row
@@ -84,7 +85,7 @@ if __name__ == '__main__':
         a.cold_reset(); a.frame(700)
         assert a.peek(S['state'])[0] == 0
         report=dict(method=__doc__,config=e.config,
-            car_sha256=hashlib.sha256((ROOT/'Phoenix800XL.car').read_bytes()).hexdigest(),
+            car_sha256=hashlib.sha256(e.car_path.read_bytes()).hexdigest(),
             joystick_positions=[x0,x1,x2,x3],shield_down=True,
             cold_boot=True,warm_reset=True,cold_reset=True,timing=rows)
         (O/'report.json').write_text(json.dumps(report,indent=2))

@@ -1,1 +1,0 @@
-Preserved third-party notices. Source and asset provenance is recorded in ../../src/arcade-assets/ASSET-PROVENANCE.txt and ORIGINAL-NOTICES.md. Additional reference source and trace fixtures are included in the complete source ZIP.

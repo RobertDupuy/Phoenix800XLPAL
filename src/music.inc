@@ -46,10 +46,10 @@ music_compute:
 audio_clock:
  clc
  lda music_fraction
- adc #<1217
+ adc #<arcade_frame_extra
  sta music_fraction
  lda music_fraction+1
- adc #>1217
+ adc #>arcade_frame_extra
  sta music_fraction+1
  bcc audio_once
  jsr music_tick

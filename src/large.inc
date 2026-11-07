@@ -353,11 +353,11 @@ large_soft_source:
 
 .section .text,"ax",@progbits
 large_frame_palette:
- lda #70
+ lda #color_46
  sta 0xd019
- lda #14
+ lda #color_0e
  sta playfield_c0
- lda #44
+ lda #color_2c
  sta playfield_c1
  lda large_shown
  cmp #3
@@ -370,23 +370,23 @@ large_frame_palette:
  sta 0xd019
  lda entrance_shown
  beq palette_small
- lda #198
+ lda #color_c6
  bne palette_done
 palette_small:
  lda level_round
  and #2
  beq palette_small1
- lda #92
+ lda #color_5c
  sta playfield_c0
- lda #200
+ lda #color_c8
  bne palette_done
 palette_small1:
- lda #90
+ lda #color_5a
  bne palette_done
 palette_boss:
  lda #dark_blue_stars
  sta 0xd019
- lda #26
+ lda #color_1a
  ldx boss_status
  cpx #3
  bcc palette_boss_color
@@ -395,13 +395,13 @@ palette_boss:
  ldx boss_timer
  cpx #33
  bcc palette_award_color
- lda #14
+ lda #color_0e
  bne palette_boss_color
 palette_award_color:
- lda #70
+ lda #color_46
 palette_boss_color:
  sta playfield_c0
- lda #90
+ lda #color_5a
  bne palette_done
 palette_large1:
 palette_large2:
@@ -419,11 +419,11 @@ palette_large2:
  sta supplied_palette_base
  sta supplied_event
  # The supplied adult sprite's cyan, yellow-green and magenta roles.
- lda #170
+ lda #color_aa
  sta playfield_c0
- lda #236
+ lda #color_ec
  sta playfield_c1
- lda #86
+ lda #color_56
 palette_done:
  sta gameplay_color
  rts

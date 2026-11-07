@@ -1,0 +1,53 @@
+{
+  "method": "Compare executable PAL/NTSC clocks, ship speed, and all three music sequences.\n\nThe CPU harness excludes ANTIC/DMA. Live PAL timing and playback are checked\nseparately in xl_integration.py and the joystick-only playthrough.\n",
+  "car_sha256": "a3d8cb0ad3bc49f035b6c2d1601dd8712753703f390ab60a38b588c8d773bebd",
+  "rates": [
+    {
+      "video": "ntsc",
+      "frames": 1198,
+      "seconds": 19.992409091099567,
+      "simulation_ticks": 1220,
+      "ship_pixels": 1220,
+      "simulation_hz": 61.02316106282222,
+      "ship_pixels_per_second": 61.02316106282222
+    },
+    {
+      "video": "pal",
+      "frames": 997,
+      "seconds": 19.995689749961514,
+      "simulation_ticks": 1220,
+      "ship_pixels": 1220,
+      "simulation_hz": 61.01314909641205,
+      "ship_pixels_per_second": 61.01314909641205
+    }
+  ],
+  "tunes": [
+    {
+      "tune": 1,
+      "notes": 96,
+      "max_note_time_difference_seconds": 0.01894531075136463,
+      "pal_last_note_seconds": 19.97563389263959,
+      "ntsc_last_note_seconds": 19.959032782099403,
+      "mean_pitch_difference_cents": 15.237789204676963,
+      "max_pitch_difference_cents": 15.864001213096826
+    },
+    {
+      "tune": 2,
+      "notes": 96,
+      "max_note_time_difference_seconds": 0.01894531075136463,
+      "pal_last_note_seconds": 19.97563389263959,
+      "ntsc_last_note_seconds": 19.959032782099403,
+      "mean_pitch_difference_cents": 9.897391269241714,
+      "max_pitch_difference_cents": 15.864001213096826
+    },
+    {
+      "tune": 3,
+      "notes": 96,
+      "max_note_time_difference_seconds": 0.01894531075136463,
+      "pal_last_note_seconds": 19.97563389263959,
+      "ntsc_last_note_seconds": 19.959032782099403,
+      "mean_pitch_difference_cents": 9.107277339368038,
+      "max_pitch_difference_cents": 15.864001213096826
+    }
+  ]
+}

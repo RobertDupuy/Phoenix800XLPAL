@@ -96,11 +96,11 @@ pilot_start:
 1: sta 0xd000
  sta 0xd001
  sta 0xd002
- lda #170
+ lda #color_aa
  sta 0xd012
- lda #100
+ lda #color_64
  sta 0xd013
- lda #102
+ lda #color_66
  sta 0xd014
  rts
 
@@ -118,10 +118,10 @@ player_restore_dli:
  sec
  sbc #4
  sta 0xd002
- lda #198
+ lda #color_c6
  sta 0xd012
  sta 0xd013
- lda #70
+ lda #color_46
  sta 0xd014
  jmp 2f
 1: lda ship_hpos
@@ -129,11 +129,11 @@ player_restore_dli:
  sta 0xd000
  sta 0xd001
  sta 0xd002
- lda #14
+ lda #color_0e
  sta 0xd012
- lda #70
+ lda #color_46
  sta 0xd013
- lda #44
+ lda #color_2c
  sta 0xd014
 2: lda #<shield_palette_dli
  sta 0x206
@@ -148,12 +148,12 @@ shield_palette_dli:
  cmp #4
  bcs 1f
 shield_palette_set:
- lda #14
+ lda #color_0e
  sta 0xd40a
  sta 0xd016
- lda #44
+ lda #color_2c
  sta 0xd017
- lda #100
+ lda #color_64
  sta 0xd018
 1: pla
  rti

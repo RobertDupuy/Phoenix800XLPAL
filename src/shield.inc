@@ -264,7 +264,7 @@ shield_players:
 shield_player_position:
  lda shield_pose
  sta 0x337
- lda #0xc6
+ lda #color_c6
  sta 0xd012
  sta 0xd013
  lda raw_ship_x
@@ -280,7 +280,7 @@ shield_player_position:
  sec
  sbc #4
  sta 0xd002
- lda #0x46
+ lda #color_46
  sta 0xd014
  lda #0
  sta ship_hpos
@@ -295,7 +295,7 @@ shield_restore:
  lda #255
  sta shield_pmg_pose
  sta ship_pose
- lda #0x0e
+ lda #color_0e
  sta 0xd012
 shield_restore_ship:
  jsr xl_restore_ship

@@ -1,1 +1,0 @@
-Regression scripts for the cartridge build. See the root README for dependencies and commands. The complete source ZIP contains the optional C references and MAME trace fixtures. Altirra tests need an externally supplied original 5200 BIOS.

@@ -8,7 +8,12 @@ sys.path.insert(0, str(PACKAGE / 'sdk/python'))
 from altirra_bridge import AltirraBridge
 
 class XL:
-    def __init__(self, out, machine='800XL', video='ntsc'):
+    def __init__(self, out, machine='800XL', video=None):
+        cfg=json.loads((ROOT/'build/video.json').read_text())
+        video=os.environ.get('PHOENIX_XL_VIDEO',video or cfg['video'])
+        self.video_hz=(1773447.0/(114*312)) if video=='pal' else (1789772.5/(114*262))
+        self.scanlines=312 if video=='pal' else 262
+        self.car_path=Path(os.environ.get('PHOENIX_XL_CART',str(ROOT/cfg['car_file']))).resolve()
         self.out = Path(out).resolve()
         self.out.mkdir(parents=True, exist_ok=True)
         self.log = (self.out / 'emulator.log').open('w')
@@ -46,7 +51,7 @@ class XL:
         self.config = self.a.config()
         assert self.config['machine'] == machine and self.config['memory'] == '64K'
         assert not self.config['rapidus'] and not self.config['vbxe']
-        self.a.boot(str(ROOT/'Phoenix800XL.car'))
+        self.a.boot(str(self.car_path))
     def close(self):
         self.proc.terminate()
         self.proc.wait(timeout=10)

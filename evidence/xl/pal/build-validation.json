@@ -1,0 +1,8 @@
+{
+  "car_sha256": "a3d8cb0ad3bc49f035b6c2d1601dd8712753703f390ab60a38b588c8d773bebd",
+  "car_type": 30,
+  "rom_bytes": 262144,
+  "header_checksum_correct": true,
+  "ntsc_sha256": "902bbd1b8110c43eac3cef7ddf032f11d159e899051f0e2ee63133ee7e22ddf0",
+  "ntsc_build_unchanged": true
+}

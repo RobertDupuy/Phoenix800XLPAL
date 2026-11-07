@@ -1011,10 +1011,10 @@ supplied_bird_first:
  tax
  jmp supplied_first_wait
 supplied_first_default:
- lda #170
+ lda #color_aa
  sta 0x110c
- ldx #236
- ldy #86
+ ldx #color_ec
+ ldy #color_56
 supplied_first_wait:
  lda #19
 1: cmp 0xd40b
@@ -1195,8 +1195,8 @@ supplied_raster_next:
  bcc supplied_raster_build_row
  rts
 .section .tables,"a",@progbits
-supplied_c0: .byte 170,130,14
-supplied_c1: .byte 236,44,44
-supplied_c2: .byte 86,14,100
+supplied_c0: .byte color_aa,color_82,color_0e
+supplied_c1: .byte color_ec,color_2c,color_2c
+supplied_c2: .byte color_56,color_0e,color_64
 .section .display,"a",@progbits
 supplied_dl: .word 0x1000,0x1040

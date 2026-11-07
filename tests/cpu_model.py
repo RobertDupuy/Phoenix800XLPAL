@@ -5,7 +5,7 @@ from py65.devices.mpu6502 import MPU
 R=Path(__file__).resolve().parents[1];S=json.loads((R/'build/symbols.json').read_text())
 class Memory:
  def __init__(self):
-  self.b=bytearray(65536);self.rom=(R/'build/Phoenix800XL.rom').read_bytes()
+  self.b=bytearray(65536);self.rom=(R/('build/Phoenix800XL-PAL.rom' if S.get('XL_PAL') else 'build/Phoenix800XL.rom')).read_bytes()
   self.b[0x4000:0x8000]=self.rom[0x4000:0x8000]
   platform=(R/'build/platform.bin').read_bytes();self.b[0xc000:0xc000+len(platform)]=platform
   self.b[0xe300:0xff00]=(R/'build/xl-background.bin').read_bytes()

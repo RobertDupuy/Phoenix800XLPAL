@@ -260,16 +260,16 @@ fade_shapes: .byte 244,243,242,241,240,240
 .section .text,"ax",@progbits
 .global video_player_update,video_player_tick,render_live_ship
 video_player_update:
- # Alternating 1216/1217 increments total 2433 per two video frames,
- # matching the foreground arcade clock without half-speed movement.
+ # The video-specific fraction keeps the ship at the arcade clock.
+ # Alternate adjacent increments to keep subpixel rate error below 0.001%.
  lda video_phase
  clc
- adc #192
+ adc #<ship_frame_extra
  clc
  adc ship_video_fraction
  sta ship_video_fraction
  lda ship_video_fraction+1
- adc #4
+ adc #>ship_frame_extra
  sta ship_video_fraction+1
  bcc video_player_tick
  jsr video_player_tick
