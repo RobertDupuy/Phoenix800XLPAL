@@ -11,6 +11,7 @@ from prepare_art import prepare
 from prepare_formation import prepare as prepare_formation
 from prepare_victory import prepare as prepare_victory
 from prepare_xl import prepare as prepare_xl
+from prepare_player_effects import prepare as prepare_player_effects
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--video',choices=('ntsc','pal'),default='ntsc')
 args=parser.parse_args()
@@ -53,6 +54,7 @@ if video=='pal':
  intro_maps[960:1016]=bytes(colors[v] for v in intro_maps[960:1016])
  (B/'intro-maps.bin').write_bytes(intro_maps)
 prepare_victory()
+prepare_player_effects()
 (B/'intro-size.inc').write_text(".set intro_fonts_end,"+str(0xa400+len((B/'intro-fonts-packed.bin').read_bytes()))+"\n")
 screen=bytearray(b' '*960)
 screen[10:16]=b'SCORE1'
@@ -93,12 +95,18 @@ assert cs['boss_data_end']<=0xbfc0,hex(cs['boss_data_end'])
 subprocess.run([str(MOS/'mos-common-clang'),'-c','src/victory.S','-o','build/victory.o'],cwd=R,check=True)
 subprocess.run([str(MOS/'ld.lld'),'-T','src/victory.ld','build/victory.o','-o','build/victory.elf'],cwd=R,check=True)
 subprocess.run([str(MOS/'llvm-objcopy'),'-O','binary','build/victory.elf','build/victory.bin'],cwd=R,check=True)
+subprocess.run([str(MOS/'mos-common-clang'),'-c','src/player-effects.S','-o','build/player-effects.o'],cwd=R,check=True)
+subprocess.run([str(MOS/'ld.lld'),'-T','src/player-effects.ld','build/player-effects.o','-o','build/player-effects.elf'],cwd=R,check=True)
+subprocess.run([str(MOS/'llvm-objcopy'),'-O','binary','build/player-effects.elf','build/player-effects.bin'],cwd=R,check=True)
 # Every bank keeps the lower 16 KiB and vectors identical.
 base=rom
 banks=[bytearray(base) for _ in range(8)]
 victory=(B/'victory.bin').read_bytes()
 assert len(victory)<=0x3fc0,len(victory)
 banks[6][0x4000:0x4000+len(victory)]=victory
+player_effects=(B/'player-effects.bin').read_bytes()
+assert len(player_effects)<=0x3fc0,len(player_effects)
+banks[7][0x4000:0x4000+len(player_effects)]=player_effects
 banks[4][0x4000:0x5000]=(B/'boss-atlases.bin').read_bytes()
 banks[4][0x5000:0x5008]=(B/'boss-atlas-counts.bin').read_bytes()
 overlay=(B/'campaign.bin').read_bytes()
@@ -157,4 +165,6 @@ for page in range(48):
 assert rom[0x3ffa:0x4000]==bytes([0xd0,0xbf,0,4,0xf9,0xbf])
 assert len(rom)==262144
 assert symbols['platform_end']<=0xd000
+assert symbols['large_population']==7
+assert symbols['escort_population']==cs['escort_population']==5
 print(json.dumps({'payload_bytes':len(rom),'car_type':30,'video':video,'file':cart_name+'.car','entry':hex(symbols['entry']),'sha256':hashlib.sha256(car).hexdigest()},indent=2))

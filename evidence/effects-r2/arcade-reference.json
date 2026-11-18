@@ -1,0 +1,26 @@
+{
+  "reference": "Original Phoenix machine code; external disassembly",
+  "source": "https://computerarcheology.com/Arcade/Phoenix/Code.html",
+  "source_sha256": "f6a28202eea40102b44104346efc93671e41e92b6ede9777d5022b3770e22c56",
+  "original_instructions_executed": 123305,
+  "visual_ticks": 63,
+  "particle_and_core_vram_mismatches": 0,
+  "source_tables_match": true,
+  "mothership_visual_ticks": 63,
+  "mothership_vram_mismatches": 0,
+  "bird_hit_updates": 12,
+  "bird_hit_sequence": [
+    6,
+    5,
+    5,
+    4,
+    4,
+    3,
+    3,
+    2,
+    2,
+    1,
+    1,
+    0
+  ]
+}

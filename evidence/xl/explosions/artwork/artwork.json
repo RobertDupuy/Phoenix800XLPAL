@@ -1,0 +1,10 @@
+{
+  "car_sha256": "02af08c21f15e8994ad2d20f84d830a7070fb1b72af8806eda572035442d8bfb",
+  "source_frames_used": 59,
+  "restored_bird_hit_frames": 8,
+  "checks": 352,
+  "pixel_shape_or_color_region_errors": 0,
+  "normal_frames": "exact source pixels; four left-return poses use horizontal reflection; transparent margins preserve anchors",
+  "injured_states": "supplied full-spread frame with the appropriate wing removed",
+  "car_payload_bytes": 262144
+}

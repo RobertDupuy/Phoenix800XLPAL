@@ -98,91 +98,17 @@ respawn_survivors:
 respawn_small:
  jsr arcade_resume
  rts
+.section .text,"ax",@progbits
 draw_explosion:
- lda #player_explosion_row
- sta effect_origin_y
- lda boss_picture_flag
- beq 8f
- lda #0
- sec
- sbc boss_scroll
- lsr
- lsr
- lsr
- and #31
- sta effect_origin_y
- lda #12
- sta effect_origin_x
- lda boss_timer
- jmp 9f
-8:
  lda state
  cmp #3
- bne effect_done
- lda explosion_left
- sta effect_origin_x
- lda death_timer
-9: sta effect_timer
- cmp #33
- bcc effect_done
- cmp #96
- bcs effect_done
- lda #95
- sec
- sbc effect_timer
- lsr
- tax
- lda explosion_index,x
- asl
- tax
- lda explosion_ptrs,x
- sta record_ptr
- lda explosion_ptrs+1,x
- sta record_ptr+1
- ldy #0
- lda (record_ptr),y
- sta effect_count
- lda #1
- sta effect_cursor
-effect_cell_loop:
- ldy effect_cursor
- lda (record_ptr),y
- sta effect_cell
- and #15
- clc
- adc effect_origin_y
- sta draw_row
- iny
- lda (record_ptr),y
- sta draw_template
- iny
- sty effect_cursor
- lda draw_row
- cmp #25
- bcs effect_next
- lda effect_cell
- lsr
- lsr
- lsr
- lsr
- clc
- adc effect_origin_x
- cmp #7
- bcc effect_next
- cmp #33
- bcs effect_next
- sta draw_col
- jsr row_pointer
- ldx draw_template
- ldy #0
- jsr stamp_tile
-effect_next:
- dec effect_count
- bne effect_cell_loop
-effect_done:
+ beq 1f
  rts
-.section .tables,"a",@progbits
-explosion_index: .incbin "build/explosion-index.bin"
-.include "build/explosion-pointers.inc"
-.section .effects,"a",@progbits
-.include "build/explosion-data.inc"
+1:
+ # XL MegaCart bank 9 holds the new player blast; all NMI code stays in RAM.
+ lda #9
+ sta 0xd500
+ jsr 0x8000
+ lda #2
+ sta 0xd500
+ rts

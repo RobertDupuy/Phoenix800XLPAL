@@ -55,7 +55,7 @@ for _ in range(25):
     t.call('music_tick')
     shot_ticks += any(m[0x3e61+c] & 0xf0 == 0x80 and m[0x3e61+c] & 15 for c in (0,2,4,6))
 assert shot_ticks > 0
-car = R/('Phoenix5200.car' if (R/'Phoenix5200.car').exists() else 'Phoenix800XL.car')
+car = R/('Phoenix5200.car' if (R/'Phoenix5200.car').exists() else 'Phoenix800XL-PAL.car')
 report = dict(method=__doc__, car_sha256=hashlib.sha256(car.read_bytes()).hexdigest(),
               compared_audio_ticks=720, suppressed_bonus_ticks=bonus_ticks,
               audible_melody_ticks=audible_ticks, normal_bonus_beep_ticks=normal_beeps,

@@ -1,4 +1,4 @@
-# Phoenix800XL PAL — 256 KB MegaCart
+# Phoenix800XL PAL — 256 KB MegaCart, beta 2
 
 Load `Phoenix800XL-PAL.car` with the emulator set to PAL, or use it on a PAL
 Atari XL/XE with a compatible MegaCart implementation. Stock 64 KB RAM is
@@ -8,7 +8,8 @@ fire to start/shoot, down for the shield.
 
 This is a separate PAL cartridge. It retains the scrolling blue background,
 seven large birds, five mothership escorts, T1X's hand-drawn artwork, and the
-existing campaign and difficulty progression.
+existing campaign and difficulty progression. Beta 2 adds the new explosion
+artwork and scattered debris; see [EXPLOSIONS.md](EXPLOSIONS.md).
 
 ## PAL changes
 
@@ -36,21 +37,21 @@ LLVM_MOS=/path/to/llvm-mos python3 tools/build.py --video pal
 
 Outputs are `Phoenix800XL-PAL.car`, `build/Phoenix800XL-PAL.car`, and
 `build/Phoenix800XL-PAL.rom`. Run the original command without `--video pal`
-to produce NTSC. That default build was verified byte-for-byte against the
-existing NTSC release.
+to produce NTSC. The original beta release verified that default against
+the then-current NTSC release; beta 2 validation focuses on the PAL cartridge.
 
-## Validation — 2026-11-07
+## Validation — 2026-11-17
 
 Tested on AltirraBridge in PAL mode with stock 64 KB 800XL configuration,
 no CPU acceleration, and no VBXE. Physical PAL hardware has not been tested.
 The checked cartridge SHA-256 is:
 
 ```text
-a3d8cb0ad3bc49f035b6c2d1601dd8712753703f390ab60a38b588c8d773bebd
+02af08c21f15e8994ad2d20f84d830a7070fb1b72af8806eda572035442d8bfb
 ```
 
 The joystick-only automated player completed the mothership and reached
-wave 6 after 10,972 video frames (about 220 seconds). RAM reads guided its
+wave 6 at video frame 10,972 (about 220 seconds). RAM reads guided its
 controls; it made no game-memory writes. That run reported no late VBI or
 display-layout faults. See `evidence/xl/pal/playthrough/report.json`.
 
@@ -64,12 +65,14 @@ movement, shield input, warm reset and cold reset also passed.
 | --- | ---: | ---: |
 | Small birds 1 | 16 | 24.930 |
 | Small birds 2 | 16 | 24.930 |
-| Large birds 1 | 7 | 23.185 |
+| Large birds 1 | 7 | 23.019 |
 | Large birds 2 | 7 | 24.764 |
 | Mothership | 5 escorts | 18.282 |
 
 These are rendered frames, not simulation ticks; simulation and sound
-continue near 61 Hz. See `evidence/xl/pal/integration/report.json`.
+continue near 61 Hz. A longer 6,000-frame comparison of wave 3 measured
+23.119 rendered frames/s versus 23.036 for the original PAL beta; the short
+600-frame sample varies with rendering phase. See `evidence/xl/pal/integration/report.json`.
 
 Executable CPU-model comparisons measured 1,220 simulation ticks and 1,220
 ship pixels in approximately 20 seconds for both video standards. Across

@@ -1,0 +1,32 @@
+{
+  "car_sha256": "a3d8cb0ad3bc49f035b6c2d1601dd8712753703f390ab60a38b588c8d773bebd",
+  "timing": [
+    {
+      "wave": 1,
+      "frames": 600,
+      "renders": 300,
+      "fps": 24.930372807017545,
+      "late_vbi": 0,
+      "audio_underruns": 0,
+      "layout_faults": 0
+    },
+    {
+      "wave": 2,
+      "frames": 600,
+      "renders": 300,
+      "fps": 24.930372807017545,
+      "late_vbi": 0,
+      "audio_underruns": 0,
+      "layout_faults": 0
+    },
+    {
+      "wave": 3,
+      "frames": 6000,
+      "renders": 2772,
+      "fps": 23.03566447368421,
+      "late_vbi": 0,
+      "audio_underruns": 0,
+      "layout_faults": 0
+    }
+  ]
+}

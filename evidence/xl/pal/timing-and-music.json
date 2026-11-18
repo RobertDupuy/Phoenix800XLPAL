@@ -1,6 +1,6 @@
 {
   "method": "Compare executable PAL/NTSC clocks, ship speed, and all three music sequences.\n\nThe CPU harness excludes ANTIC/DMA. Live PAL timing and playback are checked\nseparately in xl_integration.py and the joystick-only playthrough.\n",
-  "car_sha256": "a3d8cb0ad3bc49f035b6c2d1601dd8712753703f390ab60a38b588c8d773bebd",
+  "car_sha256": "02af08c21f15e8994ad2d20f84d830a7070fb1b72af8806eda572035442d8bfb",
   "rates": [
     {
       "video": "ntsc",

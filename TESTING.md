@@ -1,4 +1,10 @@
-# Atari 800XL continuous-background validation
+# Current PAL validation
+
+The beta 2 PAL explosion/debris checks are documented in [EXPLOSIONS.md](EXPLOSIONS.md)
+and [PAL.md](PAL.md). Build with `--video pal` before running their test commands.
+The notes below describe the earlier NTSC cartridge and retain its original hash.
+
+# Historical Atari 800XL continuous-background validation
 
 Current cartridge SHA-256:
 `902bbd1b8110c43eac3cef7ddf032f11d159e899051f0e2ee63133ee7e22ddf0`.

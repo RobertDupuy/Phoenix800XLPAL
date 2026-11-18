@@ -1,5 +1,5 @@
 {
-  "car_sha256": "942711eff8535cb97c96f1f4eaab9488c42356c5aa12de4fea8080d9c1b70a6e",
+  "car_sha256": "02af08c21f15e8994ad2d20f84d830a7070fb1b72af8806eda572035442d8bfb",
   "method": "Execute real death/respawn code in the 6502 ROM; fixtures, not live gameplay.\n\nArcade reference: $0BA0 resets the large-bird scroll after a death; $32B0\nrebuilds BirdsLeft records from the tail of $3F80/$3FC0, as starting eggs.\n",
   "death_and_respawn_cases": 256,
   "rounds": 16,

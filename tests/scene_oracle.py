@@ -3,7 +3,7 @@ The separate mame_display test checks actual observed arcade VRAM/phase.
 """
 from cpu_model import R
 import json,numpy as np
-M=json.loads((R/'build/sprite-manifest.json').read_text());P={p['shape']:p for p in M['poses']};SH=json.loads((R/'build/shield-manifest.json').read_text())
+D=json.loads((R/'build/player-effects.json').read_text());M=json.loads((R/'build/sprite-manifest.json').read_text());P={p['shape']:p for p in M['poses']};SH=json.loads((R/'build/shield-manifest.json').read_text())
 SPACE=json.loads((R/'build/scenery-manifest.json').read_text())['objects']
 def background(timer=0,scroll=0):
  a=np.zeros((200,160),dtype=np.uint8)
@@ -53,7 +53,7 @@ def scene(m,base=None):
   for y,row in enumerate(SH['pixels'][m[0x37c]]):
    for x,v in enumerate(row):a[168+y,cx*4+x]=0 if v==5 else 3 if v==4 and m[0x33c]==0 else v
  if m[0x80]==3 and 33<=m[0x377]<96:
-  for cell,tid in M['explosions'][(95-m[0x377])//2]:put(m[0x379]+cell//16,11+cell%16,M['tiles'][tid],M['flags'][tid])
+  for cell,tid in D['frames'][(95-m[0x377])//2]:put(m[0x379]+cell//16,11+cell%16,D['tiles'][tid][:8],0)
  if (m[0x80]==1 or (m[0x80]==3 and m[0x377]>=33)) and m[0x480] and 40<=m[0x48a]<238:
   y=m[0x48a]-40;x=m[0x485]-48;a[y:y+3,x]=1
  if (m[0x80]==1 or (m[0x80]==3 and m[0x377]>=33)) and m[0x37c]!=255 and m[0x88] and 40<=m[0x8a]<238:

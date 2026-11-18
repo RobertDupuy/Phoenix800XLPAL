@@ -1,0 +1,10 @@
+{
+  "car_sha256": "02af08c21f15e8994ad2d20f84d830a7070fb1b72af8806eda572035442d8bfb",
+  "cases": 189,
+  "frames": 63,
+  "kill_heights": 3,
+  "pixel_errors": 0,
+  "bank_restored": true,
+  "layout_faults": 0,
+  "supplied_particle_tiles": 20
+}

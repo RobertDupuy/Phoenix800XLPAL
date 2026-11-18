@@ -6,6 +6,7 @@ from collections import Counter
 import re,json,math
 import numpy as np
 import supplied_art as supplied
+from effect_art import artwork
 R=Path(__file__).resolve().parents[1];B=R/'build';A=R/'src/arcade-assets'
 def tables():
  s=(A/'phoenix_tables.c').read_text()
@@ -96,26 +97,12 @@ def prepare(clock=1789772.5):
     tid=tiles.index(tile);ids[cy*2+cx]=tid
     if tid and kind:freq[tid]+=1
   poses.append(dict(kind=kind,shape=shape,pixels=pixels,tiles=ids,source=provenance if kind else None))
- # Four exact yellow 5200 explosion frames, held eight two-tick snapshots
- # each. The death timer, collision lockout and sound duration are unchanged.
- effects=[];flags=[0]*len(tiles);color_losses=0;sample_losses=0
+ # Player explosions live in MegaCart bank 9, outside the native bird cache.
+ effects=[[] for _ in range(32)];layouts=[];indexes=[]
+ flags=[0]*len(tiles);color_losses=0;sample_losses=0
  colors=[(0,0,0),(255,255,255),(246,246,68),(211,31,210),(202,22,24)]
  def classify(rgb):
   return min(range(5),key=lambda k:sum((rgb[i]-colors[k][i])**2 for i in range(3)))
- for counter in range(32):
-  pixels=np.pad(supplied.pixels('explosion',counter//8),((0,0),(2,2)));cells=[]
-  for cx in range(5):
-   for cy in range(4):
-    tile=bytes(sum(int(pixels[cy*8+y,cx*4+x])<<(6-2*x) for x in range(4))for y in range(8))
-    if not any(tile):continue
-    found=next((i for i,p in enumerate(tiles) if p==tile and flags[i]==0),None)
-    if found is None:found=len(tiles);tiles.append(tile);flags.append(0)
-    cells.append([(cx+6)*16+cy+10,found])
-  effects.append(cells)
- layouts=[];indexes=[]
- for cells in effects:
-  if cells not in layouts:layouts.append(cells)
-  indexes.append(layouts.index(cells))
  # Six foreground cells per hit burst, source table at arcade $17B8.
  rgb=json.loads((A/'foreground-rgb.json').read_text())['fg'];burstposes=[]
  def rgb_tile(code):
@@ -132,15 +119,19 @@ def prepare(clock=1789772.5):
   found=next((i for i,p in enumerate(tiles) if (p,flags[i])==(tile,flag)),None)
   if found is None:found=len(tiles);tiles.append(tile);flags.append(flag)
   return found
- # Restore the pre-artwork bird-hit sequence. The purple creature in
- # supplied row 06 is not a bird explosion; keep that artwork unassigned.
- for index in range(8):
-  off=t['alien_explosion_frames'][index]-0xb8
-  codes=t['shield_and_drawnx2_shapes'][off:off+6]
-  assert len(codes)==6
-  burstposes.append([rgb_tile(c) for c in codes])
+ def effect_tile(pixels):
+  cnt=Counter(int(v) for v in pixels.flat)
+  flag=128 if cnt[4]>=cnt[3] and cnt[4] else 0
+  tile=bytes(sum((3 if v in (3,4) else int(v))<<(6-2*x) for x,v in enumerate(row)) for row in pixels)
+  found=next((i for i,p in enumerate(tiles) if (p,flags[i])==(tile,flag)),None)
+  if found is None:found=len(tiles);tiles.append(tile);flags.append(flag)
+  return found
+ def effect_cells(pixels):
+  return [effect_tile(pixels[cy*8:cy*8+8,cx*4:cx*4+4]) for cx in range(3) for cy in range(2)]
+ # Exact lower-sheet bird bursts, with the original eight-stage cadence.
+ burstposes=[effect_cells(p) for p in artwork()['bursts']]
  (B/'burst-shapes.bin').write_bytes(bytes(v for p in burstposes for v in p))
- bonus_parts=[rgb_tile(c) for c in t['shield_and_drawnx2_shapes'][24:36]]
+ bonus_parts=[v for p in artwork()['bonus'] for v in effect_cells(p)]
  bonus_numbers=[rgb_tile(32+c) for c in range(10)]
  (B/'bonus-parts.bin').write_bytes(bytes(bonus_parts))
  (B/'bonus-numbers.bin').write_bytes(bytes(bonus_numbers))
@@ -216,6 +207,6 @@ def prepare(clock=1789772.5):
  (B/'shape-ids.bin').write_bytes(shape_ids)
  (B/'native-shapes.bin').write_bytes(bytes(v for p in poses for v in p['tiles']))
  (B/'native-count.inc').write_text(f'.set TEMPLATE_COUNT,{len(tiles)}\n')
- (B/'sprite-manifest.json').write_text(json.dumps(dict(art_variant='supplied right-hand Atari 5200 GIF artwork; whole-pixel translations only',poses=poses,tiles=[list(p) for p in tiles],flags=flags,static_templates=static,explosions=effects,bursts=burstposes,burst_source="v0.25 bird-hit sequence; supplied purple creature excluded",bonus_parts=bonus_parts,bonus_numbers=bonus_numbers,explosion_color_conflict_pixels=color_losses,horizontal_pair_conflicts=sample_losses,geometry='MAME raw X/2 +76; raw Y+8. Sprite blocks use raw coordinate rounded down to 8; artwork itself supplies the fine phase.',dynamic_allocation_bound=None,shield_allocation_bound=None,shield_total_glyph_bound=None,death_allocation_bound=None,first_dynamic_glyph=64,allocation_bound_reason="Sixty-two immutable templates, plus protected persistent dynamic glyphs. Capacity is checked in 1,168 sprite/edge/death scenes, 480 effect-overlap scenes and original-BIOS elapsed fixtures; these are sampled checks, not an exhaustive proof over all possible states.",native_data_layout="Eight ROM rows; template id indexes one byte in each row. The background star uses a direct transparency test on its single row."),indent=2))
+ (B/'sprite-manifest.json').write_text(json.dumps(dict(art_variant='supplied right-hand Atari 5200 GIF artwork; whole-pixel translations only',poses=poses,tiles=[list(p) for p in tiles],flags=flags,static_templates=static,explosions=effects,bursts=burstposes,burst_source="T1X explosions5.png lower wide-pixel sheet; original eight-stage cadence",bonus_parts=bonus_parts,bonus_numbers=bonus_numbers,explosion_color_conflict_pixels=color_losses,horizontal_pair_conflicts=sample_losses,geometry='MAME raw X/2 +76; raw Y+8. Sprite blocks use raw coordinate rounded down to 8; artwork itself supplies the fine phase.',dynamic_allocation_bound=None,shield_allocation_bound=None,shield_total_glyph_bound=None,death_allocation_bound=None,first_dynamic_glyph=64,allocation_bound_reason="Sixty-two immutable templates, plus protected persistent dynamic glyphs. Capacity is checked in 1,168 sprite/edge/death scenes, 480 effect-overlap scenes and original-BIOS elapsed fixtures; these are sampled checks, not an exhaustive proof over all possible states.",native_data_layout="Eight ROM rows; template id indexes one byte in each row. The background star uses a direct transparency test on its single row."),indent=2))
  print('Native arcade renderer:',len(poses),'poses,',len(tiles),'templates; 62 resident templates')
 if __name__=='__main__':prepare()
